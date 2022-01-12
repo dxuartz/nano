@@ -1,0 +1,24 @@
+{
+	"name": "dxuartz/nano",
+	"description": "Micro framework MVC",
+	"type": "library",
+	"license": "GPL-3.0-or-later",
+	"authors": 
+	[
+		{
+			"name": "Dennis Schwartz",
+			"email": "dxuartz@gmail.com"
+		}
+	],
+	"autoload": 
+	{
+		"psr-4": 
+		{
+			"Nano\\": "src/"
+		}
+	},
+	"require": 
+	{
+		"php": ">=7.4"
+	}
+}
