@@ -4,9 +4,9 @@ global $conn;
 
 if ( ! isset( $conn ) || ! $conn )
 {
-	if ( file_exists( __DIR__ . '/../nano.conf.ini' ) )
+	if ( file_exists( __DIR__ . '/../../../../nano.conf.ini' ) )
 	{
-		$config = parse_ini_file( __DIR__ . '/../nano.conf.ini', true );
+		$config = parse_ini_file( __DIR__ . '/../../../../nano.conf.ini', true );
 	}
 	else
 	{
