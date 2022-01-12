@@ -1,6 +1,6 @@
 {
 	"name": "dxuartz/nano",
-	"description": "Micro framework MVC",
+	"description": "Micro biblioteca MVC",
 	"type": "library",
 	"license": "GPL-3.0-or-later",
 	"authors": 

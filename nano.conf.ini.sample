@@ -3,7 +3,7 @@
 [database]
 host = "127.0.0.1"
 user = "root"
-pass = "8FeCg7frWD"
+pass = "your-password-123"
 name = "nano"
 port = "3306"
 timezone = "-3:00"

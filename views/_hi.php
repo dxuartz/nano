@@ -1,1 +1,0 @@
-<p>Esta é uma partial dizendo oi para: <?= $person->name ?></p>
