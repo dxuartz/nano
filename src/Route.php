@@ -187,7 +187,7 @@ class Route
 		$controller = new $controller_name();
 		$action_return = $controller->$action_name();
 		
-		if ( is_object( $action_return ) )
+		if ( is_array( $action_return ) )
 		{
 			foreach ( $action_return as $key => $value )
 			{
