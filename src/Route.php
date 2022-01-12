@@ -110,6 +110,39 @@ class Route
 	}
 	
 	# ------------------------------------------ ------------------------------------------ #
+	public final function post( $url )
+	{
+		if ( strtolower( $this->request_method ) != 'post' )
+		{
+			return ( new \Nano\RouteVoid() );
+		}
+		
+		return $this->match( $url );
+	}
+	
+	# ------------------------------------------ ------------------------------------------ #
+	public final function put( $url )
+	{
+		if ( strtolower( $this->request_method ) != 'put' )
+		{
+			return ( new \Nano\RouteVoid() );
+		}
+		
+		return $this->match( $url );
+	}
+	
+	# ------------------------------------------ ------------------------------------------ #
+	public final function delete( $url )
+	{
+		if ( strtolower( $this->request_method ) != 'delete' )
+		{
+			return ( new \Nano\RouteVoid() );
+		}
+		
+		return $this->match( $url );
+	}
+	
+	# ------------------------------------------ ------------------------------------------ #
 	private function match( $url )
 	{
 		$matches = $this->matchRegexUrl( $url );
