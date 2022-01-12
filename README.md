@@ -2,6 +2,13 @@
 
 Micro biblioteca MVC
 
+## Instalação
+
+Para instalar esta dependência basta executar o comando abaixo
+```shell
+composer require dxuartz/nano
+```
+
 ## Utilização
 
 Para usar esta biblioteca basta usar o exemplo abaixo:
@@ -15,10 +22,3 @@ $person = Dao::find( 'Person', 1 );
 ## Requisitos
 
 Necessário PHP 7.4 ou superior.
-
-## Instalação
-
-Para instalar esta dependência basta executar o comando abaixo
-```shell
-composer require dxuartz/nano
-```
