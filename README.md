@@ -40,11 +40,11 @@ Arquivo .htaccess:
 	RewriteBase /
 	RewriteCond %{REQUEST_FILENAME} !-d
 	RewriteCond %{REQUEST_FILENAME} !-f
-	RewriteRule ^(.*)/$ 									/$1 [R=301,L]
-	RewriteRule ^/?$ 										/router.php?url [NC,L,QSA]
-	RewriteRule ^([A-Za-z0-9-_/]+)/?$ 						/router.php?url=$1 [NC,L,QSA]
+	RewriteRule ^(.*)/$                           /$1 [R=301,L]
+	RewriteRule ^/?$                              /router.php?url [NC,L,QSA]
+	RewriteRule ^([A-Za-z0-9-_/]+)/?$             /router.php?url=$1 [NC,L,QSA]
 	RewriteCond %{REQUEST_URI} .*\.(php|html)
-	RewriteRule ^(.*)/ 										/ [R]
+	RewriteRule ^(.*)/                            / [R]
 </IfModule>
 ```
 
