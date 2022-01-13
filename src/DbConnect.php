@@ -4,11 +4,18 @@ global $conn;
 
 if ( ! isset( $conn ) || ! $conn )
 {
-	if ( file_exists( __DIR__ . '/../../../../nano.conf.ini' ) )
+	for ( $i = 1; $i <= 6; $i++ )
 	{
-		$config = parse_ini_file( __DIR__ . '/../../../../nano.conf.ini', true );
+		$levels_down = str_repeat( '/..', $i );
+		
+		if ( file_exists( __DIR__ . $levels_down . '/nano.conf.ini' ) )
+		{
+			$config = parse_ini_file( __DIR__ . $levels_down . '/nano.conf.ini', true );
+			break;
+		}
 	}
-	else
+	
+	if ( ! isset( $config ) )
 	{
 		die( 'Configuration file nano.conf.ini not found.' );
 	}
