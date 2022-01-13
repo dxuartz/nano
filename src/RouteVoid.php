@@ -22,6 +22,12 @@ class RouteVoid
 	}
 	
 	# ------------------------------------------ ------------------------------------------ #
+	public final function setLayout( $layout )
+	{
+		return $this;
+	}
+	
+	# ------------------------------------------ ------------------------------------------ #
 	public function action( $destination )
 	{
 		return $this;
