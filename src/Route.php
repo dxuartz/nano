@@ -183,9 +183,10 @@ class Route
 			}
 		}
 		
+		$httpRequest = \Nano\HttpRequest::initialize();
 		$action_name = $action_name[0];
 		$controller = new $controller_name();
-		$action_return = $controller->$action_name();
+		$action_return = $controller->$action_name( $httpRequest );
 		
 		if ( is_array( $action_return ) )
 		{
