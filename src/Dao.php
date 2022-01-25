@@ -8,6 +8,12 @@ class Dao
 	private const SQL_QUERY_LIMIT_NULL = null;
 	
 	# ------------------------------------------ ------------------------------------------ #
+	public final static function create( $class_name )
+	{
+		return new $class_name();
+	}
+	
+	# ------------------------------------------ ------------------------------------------ #
 	public final static function find( $class_name, $where = null )
 	{
 		Validation::validateStrings( [ $class_name ] );
@@ -92,10 +98,16 @@ class Dao
 	}
 	
 	# ------------------------------------------ ------------------------------------------ #
-	public final static function save( $object )
+	public final static function save( $object, $debug_mode = false )
 	{
 		Validation::validateObjects( [ $object ] );
 		$sql = Dao::getSqlSave( $object );
+		
+		if ( $debug_mode )
+		{
+			return $sql;
+		}
+		
 		$result = Dao::execute( $sql );
 		
 		if ( ! $result )
@@ -241,7 +253,7 @@ class Dao
 					break;
 					
 				default:
-					$keys_values[] = "`" . $key . "` = '" . ( $object->$key !== null ? $object->$key : 'null' ) . "'";
+					$keys_values[] = "`" . $key . "` = " . ( $object->$key !== null ? "'" . $object->$key . "'" : 'NULL' );
 					break;
 			}
 		}
