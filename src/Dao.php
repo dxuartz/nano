@@ -238,23 +238,21 @@ class Dao
 		
 		foreach ( get_class_vars( $class_name ) as $key => $value )
 		{
-			switch ( $key )
+			if ( $key == 'created_at' && ! $object->id )
 			{
-				case 'created_at':
-					if ( ! $object->id )
-					{
-						$keys_values[] = "`created_at` = '" . date( 'Y-m-d H:i:s' ) . "'";
-					}
-					
-					break;
-					
-				case 'updated_at':
-					$keys_values[] = "`updated_at` = '" . date( 'Y-m-d H:i:s' ) . "'";
-					break;
-					
-				default:
-					$keys_values[] = "`" . $key . "` = " . ( $object->$key !== null ? "'" . $object->$key . "'" : 'NULL' );
-					break;
+				$keys_values[] = "`created_at` = '" . date( 'Y-m-d H:i:s' ) . "'";
+			}
+			elseif ( $key == 'updated_at' )
+			{
+				$keys_values[] = "`updated_at` = '" . date( 'Y-m-d H:i:s' ) . "'";
+			}
+			elseif ( property_exists( $object, $key ) && $object->$key !== null && $object->$key !== 'null' )
+			{
+				$keys_values[] = "`{$key}` = '{$object->$key}'";
+			}
+			elseif ( property_exists( $object, $key ) && $object->$key === 'null' )
+			{
+				$keys_values[] = "`{$key}` = NULL";
 			}
 		}
 		
