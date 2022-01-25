@@ -98,7 +98,7 @@ class Dao
 	}
 	
 	# ------------------------------------------ ------------------------------------------ #
-	public final static function save( $object, $debug_mode = false )
+	public final static function save( $object, $error_message = 'Error saving object', $debug_mode = false )
 	{
 		Validation::validateObjects( [ $object ] );
 		$sql = Dao::getSqlSave( $object );
@@ -112,7 +112,7 @@ class Dao
 		
 		if ( ! $result )
 		{
-			throw new \Nano\DaoException( 'Error saving object' );
+			throw new \Nano\DaoException( $error_message );
 		}
 		
 		if ( ! $object->id )
