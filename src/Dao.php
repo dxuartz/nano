@@ -130,7 +130,7 @@ class Dao
 	}
 	
 	# ------------------------------------------ ------------------------------------------ #
-	public final static function delete( $object )
+	public final static function delete( $object, $error_message = 'Error deleting object' )
 	{
 		Validation::validateObjects( [ $object ] );
 		$class_name = get_class( $object );
@@ -139,7 +139,7 @@ class Dao
 		
 		if ( ! $result )
 		{
-			throw new \Nano\DaoException( 'Error deleting object' );
+			throw new \Nano\DaoException( $error_message );
 		}
 		
 		return $object;
