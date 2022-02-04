@@ -225,16 +225,14 @@ class Route
 		}
 		
 		ob_start();
-		$view = file_get_contents( $this->view_path . $this->view );
-		$view = eval( "?>$view" );
+		include( $this->view_path . $this->view );
 		$view = ob_get_contents();
 		ob_end_clean();
 		
 		if ( $this->layout )
 		{
 			ob_start();
-			$layout = file_get_contents( $this->layout );
-			$html = eval( "?>$layout" );
+			include( $this->layout );
 			$html = ob_get_contents();
 			ob_end_clean();
 		}
