@@ -12,8 +12,17 @@ class HttpRequest
 	{
 		$httpRequest = new self();
 		$httpRequest->populateGet();
-		$httpRequest->populatePost();
-		$httpRequest->populatePut();
+
+		if ($_SERVER['REQUEST_METHOD'] === 'POST') 
+		{
+			$httpRequest->populatePost();
+		}
+
+		if ($_SERVER['REQUEST_METHOD'] === 'POST') 
+		{
+			$httpRequest->populatePut();
+		}
+		
 		return $httpRequest;
 	}
 	
@@ -39,6 +48,10 @@ class HttpRequest
 	private function populatePost()
 	{
 		$this->post = $_POST;
+		if ( file_get_contents( 'php://input' ) != "" )
+		{
+			$this->post = array_merge($this->post, $this->parseRawHttpRequest());
+		}
 	}
 	
 	# ------------------------------------------ ------------------------------------------ #
@@ -55,6 +68,12 @@ class HttpRequest
 	{
 		$a_data = [];
 		$input = file_get_contents( 'php://input' );
+		if( $this->isJson( $input ) )
+    {
+        $a_data = json_decode( $input, true );
+        return $a_data;
+    }
+
 		preg_match( '/boundary=(.*)$/', $_SERVER['CONTENT_TYPE'], $matches );
 		$boundary = $matches[1];
 		$a_blocks = preg_split( "/-+$boundary/", $input );
@@ -80,5 +99,11 @@ class HttpRequest
 		}
 		
 		return $a_data;
+	}
+
+	private function isJson( $string )
+	{
+		json_decode( $string );
+		return json_last_error() === JSON_ERROR_NONE;
 	}
 }
