@@ -12,13 +12,13 @@ class HttpRequest
 	{
 		$httpRequest = new self();
 		$httpRequest->populateGet();
-
-		if ($_SERVER['REQUEST_METHOD'] === 'POST') 
+		
+		if ( $_SERVER['REQUEST_METHOD'] === 'POST' )
 		{
 			$httpRequest->populatePost();
 		}
-
-		if ($_SERVER['REQUEST_METHOD'] === 'POST') 
+		
+		if ( $_SERVER['REQUEST_METHOD'] === 'PUT' )
 		{
 			$httpRequest->populatePut();
 		}
@@ -48,9 +48,11 @@ class HttpRequest
 	private function populatePost()
 	{
 		$this->post = $_POST;
-		if ( file_get_contents( 'php://input' ) != "" )
+		$input = file_get_contents( 'php://input' );
+		
+		if ( $input )
 		{
-			$this->post = array_merge($this->post, $this->parseRawHttpRequest());
+			$this->post = array_merge( $this->post, $this->parseRawHttpRequest( $input ) );
 		}
 	}
 	
@@ -59,21 +61,22 @@ class HttpRequest
 	{
 		if ( isset( $_SERVER['CONTENT_TYPE'] ) && $_SERVER['CONTENT_TYPE'] )
 		{
-			$this->put = $this->parseRawHttpRequest();
+			$input = file_get_contents( 'php://input' );
+			$this->put = $this->parseRawHttpRequest( $input );
 		}
 	}
 	
 	# ------------------------------------------ ------------------------------------------ #
-	private function parseRawHttpRequest()
+	private function parseRawHttpRequest( $input )
 	{
+		$json_body = json_decode( $input, true );
+		
+		if ( ! json_last_error() )
+		{
+			return $json_body;
+		}
+		
 		$a_data = [];
-		$input = file_get_contents( 'php://input' );
-		if( $this->isJson( $input ) )
-    {
-        $a_data = json_decode( $input, true );
-        return $a_data;
-    }
-
 		preg_match( '/boundary=(.*)$/', $_SERVER['CONTENT_TYPE'], $matches );
 		$boundary = $matches[1];
 		$a_blocks = preg_split( "/-+$boundary/", $input );
@@ -99,11 +102,5 @@ class HttpRequest
 		}
 		
 		return $a_data;
-	}
-
-	private function isJson( $string )
-	{
-		json_decode( $string );
-		return json_last_error() === JSON_ERROR_NONE;
 	}
 }
