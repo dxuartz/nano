@@ -189,7 +189,14 @@ class Dao
 		{
 			foreach ( get_class_vars( get_class( $object ) ) as $key => $value )
 			{
-				$object->$key = $data->$key;
+				if ( is_numeric( $data->$key ) )
+				{
+					$object->$key = ( $data->$key == ( int ) $data->$key ) ? ( int ) $data->$key : ( float ) $data->$key;
+				}
+				else
+				{
+					$object->$key = $data->$key;
+				}
 			}
 		}
 		
