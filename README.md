@@ -66,7 +66,7 @@ $route->get( 'people/:person_id' )->action( '\Controllers\People#show' )->view( 
 Exemplo de uso
 ```PHP
 <?php
-use Nano\Dao;
+use Nano\Core\Dao;
 require __DIR__ . '/vendor/autoload.php';
 $person = Dao::find( 'Person', 1 );
 ```
