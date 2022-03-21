@@ -187,7 +187,7 @@ class Route
 		$dao = new \Nano\Core\Dao( $db );
 		$httpRequest = \Nano\Core\HttpRequest::initialize();
 		$action_name = $action_name[0];
-		$controller = new $controller_name();
+		$controller = new $controller_name( $httpRequest, $dao );
 		$action_return = $controller->$action_name( $httpRequest, $dao );
 		
 		if ( is_array( $action_return ) )
