@@ -127,12 +127,16 @@ class Dao
 			$object->id = $this->db->getLastInsertId();
 		}
 		
-		if ( ! $object->created_at )
+		if ( isset( $object->created_at ) && ! $object->created_at )
 		{
 			$object->created_at = date( 'Y-m-d H:i:s' );
 		}
 		
-		$object->updated_at = date( 'Y-m-d H:i:s' );
+		if ( isset( $object->updated_at ) )
+		{
+			$object->updated_at = date( 'Y-m-d H:i:s' );
+		}
+		
 		return $object;
 	}
 	
