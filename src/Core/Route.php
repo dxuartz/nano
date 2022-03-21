@@ -1,5 +1,5 @@
 <?php
-namespace Nano;
+namespace Nano\Core;
 use stdClass;
 
 class Route
@@ -103,7 +103,7 @@ class Route
 	{
 		if ( strtolower( $this->request_method ) != 'get' )
 		{
-			return ( new \Nano\RouteVoid() );
+			return ( new \Nano\Core\RouteVoid() );
 		}
 		
 		return $this->match( $url );
@@ -114,7 +114,7 @@ class Route
 	{
 		if ( strtolower( $this->request_method ) != 'post' )
 		{
-			return ( new \Nano\RouteVoid() );
+			return ( new \Nano\Core\RouteVoid() );
 		}
 		
 		return $this->match( $url );
@@ -125,7 +125,7 @@ class Route
 	{
 		if ( strtolower( $this->request_method ) != 'put' )
 		{
-			return ( new \Nano\RouteVoid() );
+			return ( new \Nano\Core\RouteVoid() );
 		}
 		
 		return $this->match( $url );
@@ -136,7 +136,7 @@ class Route
 	{
 		if ( strtolower( $this->request_method ) != 'delete' )
 		{
-			return ( new \Nano\RouteVoid() );
+			return ( new \Nano\Core\RouteVoid() );
 		}
 		
 		return $this->match( $url );
@@ -149,7 +149,7 @@ class Route
 		
 		if ( $matches === false )
 		{
-			return ( new \Nano\RouteVoid() );
+			return ( new \Nano\Core\RouteVoid() );
 		}
 		
 		$this->getUrlVariables( $matches );
@@ -183,10 +183,12 @@ class Route
 			}
 		}
 		
-		$httpRequest = \Nano\HttpRequest::initialize();
+		$db = new \Nano\Core\Db();
+		$dao = new \Nano\Core\Dao( $db );
+		$httpRequest = \Nano\Core\HttpRequest::initialize();
 		$action_name = $action_name[0];
 		$controller = new $controller_name();
-		$action_return = $controller->$action_name( $httpRequest );
+		$action_return = $controller->$action_name( $httpRequest, $dao );
 		
 		if ( is_array( $action_return ) )
 		{

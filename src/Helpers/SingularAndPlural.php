@@ -1,5 +1,5 @@
 <?php
-namespace Nano;
+namespace Nano\Helpers;
 
 class SingularAndPlural
 {

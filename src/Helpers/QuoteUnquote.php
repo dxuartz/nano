@@ -1,5 +1,5 @@
 <?php
-namespace Nano;
+namespace Nano\Helpers;
 
 class QuoteUnquote
 {
@@ -8,7 +8,7 @@ class QuoteUnquote
 	{
 		foreach ( $row as $key => $value )
 		{
-			$row->$key = \Nano\QuoteUnquote::unquoteString( $value );
+			$row->$key = \Nano\Helpers\QuoteUnquote::unquoteString( $value );
 		}
 		
 		return $row;

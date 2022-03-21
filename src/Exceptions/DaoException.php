@@ -1,5 +1,5 @@
 <?php
-namespace Nano;
+namespace Nano\Exceptions;
 
 class DaoException extends \Exception
 {

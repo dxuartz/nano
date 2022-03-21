@@ -1,51 +1,58 @@
 <?php
-namespace Nano;
+namespace Nano\Core;
 
 class Dao
 {
+	private $db;
 	private const SQL_QUERY_COUNT_TRUE = true;
 	private const SQL_QUERY_ORDER_NULL = null;
 	private const SQL_QUERY_LIMIT_NULL = null;
 	
 	# ------------------------------------------ ------------------------------------------ #
-	public final static function create( $class_name )
+	public function __construct( $db )
+	{
+		$this->db = $db;
+	}
+	
+	# ------------------------------------------ ------------------------------------------ #
+	public final function create( $class_name )
 	{
 		return new $class_name();
 	}
 	
 	# ------------------------------------------ ------------------------------------------ #
-	public final static function find( $class_name, $where = null )
+	public final function find( $class_name, $where = null )
 	{
-		Validation::validateStrings( [ $class_name ] );
+		\Nano\Helpers\Validation::validateStrings( [ $class_name ] );
 		
 		if ( is_numeric( $where ) )
 		{
 			$where = "`id` = '{$where}'";
 		}
 		
-		$table_name = Dao::getTableName( $class_name );
-		$sql = Dao::getSqlQuery( $table_name, $where, self::SQL_QUERY_ORDER_NULL, 1 );
-		$result_set = Db::query( $sql );
-		$result_set = Dao::fetchResultSet( $result_set );
+		$table_name = $this->getTableName( $class_name );
+		$sql = $this->getSqlQuery( $table_name, $where, self::SQL_QUERY_ORDER_NULL, 1 );
+		$result_set = $this->db->query( $sql );
+		$result_set = $this->fetchResultSet( $result_set );
 		$out_object = new $class_name();
-		$out_object = Dao::populateObject( $out_object, $result_set );
+		$out_object = $this->populateObject( $out_object, $result_set );
 		return $out_object;
 	}
 	
 	# ------------------------------------------ ------------------------------------------ #
-	public final static function findAll( $class_name, $where = null, $order_by = null, $limit = null )
+	public final function findAll( $class_name, $where = null, $order_by = null, $limit = null )
 	{
-		Validation::validateStrings( [ $class_name ] );
+		\Nano\Helpers\Validation::validateStrings( [ $class_name ] );
 		$out = [];
-		$table_name = Dao::getTableName( $class_name );
-		$sql = Dao::getSqlQuery( $table_name, $where, $order_by, $limit );
-		$result_set = Db::query( $sql );
-		$result_set = Dao::fetchResultSet( $result_set );
+		$table_name = $this->getTableName( $class_name );
+		$sql = $this->getSqlQuery( $table_name, $where, $order_by, $limit );
+		$result_set = $this->db->query( $sql );
+		$result_set = $this->fetchResultSet( $result_set );
 		
 		foreach ( $result_set as $row )
 		{
 			$object = new $class_name();
-			$object = Dao::populateObject( $object, $row );
+			$object = $this->populateObject( $object, $row );
 			$out[] = $object;
 		}
 		
@@ -53,22 +60,22 @@ class Dao
 	}
 	
 	# ------------------------------------------ ------------------------------------------ #
-	public final static function findParent( $class_name, $object )
+	public final function findParent( $class_name, $object )
 	{
-		Validation::validateStrings( [ $class_name ] );
-		Validation::validateObjects( [ $object ] );
-		$field_name = Dao::getParentFieldName( $class_name );
-		return Dao::find( $class_name, $object->$field_name );
+		\Nano\Helpers\Validation::validateStrings( [ $class_name ] );
+		\Nano\Helpers\Validation::validateObjects( [ $object ] );
+		$field_name = $this->getParentFieldName( $class_name );
+		return $this->find( $class_name, $object->$field_name );
 	}
 	
 	# ------------------------------------------ ------------------------------------------ #
-	public final static function count( $class_name, $where = null )
+	public final function count( $class_name, $where = null )
 	{
-		Validation::validateStrings( [ $class_name ] );
-		$table_name = Dao::getTableName( $class_name );
-		$sql = Dao::getSqlQuery( $table_name, $where, self::SQL_QUERY_ORDER_NULL, self::SQL_QUERY_LIMIT_NULL, self::SQL_QUERY_COUNT_TRUE );
-		$result_set = Db::query( $sql );
-		$result_set = Dao::fetchResultSet( $result_set );
+		\Nano\Helpers\Validation::validateStrings( [ $class_name ] );
+		$table_name = $this->getTableName( $class_name );
+		$sql = $this->getSqlQuery( $table_name, $where, self::SQL_QUERY_ORDER_NULL, self::SQL_QUERY_LIMIT_NULL, self::SQL_QUERY_COUNT_TRUE );
+		$result_set = $this->db->query( $sql );
+		$result_set = $this->fetchResultSet( $result_set );
 		
 		if ( ! empty( $result_set ) )
 		{
@@ -81,43 +88,43 @@ class Dao
 	}
 	
 	# ------------------------------------------ ------------------------------------------ #
-	public final static function query( $sql )
+	public final function query( $sql )
 	{
-		Validation::validateStrings( [ $sql ] );
-		$result_set = Db::query( $sql );
-		$result_set = Dao::fetchResultSet( $result_set );
+		\Nano\Helpers\Validation::validateStrings( [ $sql ] );
+		$result_set = $this->db->query( $sql );
+		$result_set = $this->fetchResultSet( $result_set );
 		return $result_set;
 	}
 	
 	# ------------------------------------------ ------------------------------------------ #
-	public final static function execute( $sql )
+	public final function execute( $sql )
 	{
-		Validation::validateStrings( [ $sql ] );
-		$result = Db::execute( $sql );
+		\Nano\Helpers\Validation::validateStrings( [ $sql ] );
+		$result = $this->db->execute( $sql );
 		return $result;
 	}
 	
 	# ------------------------------------------ ------------------------------------------ #
-	public final static function save( $object, $error_message = 'Error saving object', $debug_mode = false )
+	public final function save( $object, $error_message = 'Error saving object', $debug_mode = false )
 	{
-		Validation::validateObjects( [ $object ] );
-		$sql = Dao::getSqlSave( $object );
+		\Nano\Helpers\Validation::validateObjects( [ $object ] );
+		$sql = $this->getSqlSave( $object );
 		
 		if ( $debug_mode )
 		{
 			return $sql;
 		}
 		
-		$result = Dao::execute( $sql );
+		$result = $this->execute( $sql );
 		
 		if ( ! $result )
 		{
-			throw new \Nano\DaoException( $error_message );
+			throw new \Nano\Exceptions\DaoException( $error_message );
 		}
 		
 		if ( ! $object->id )
 		{
-			$object->id = \Nano\Db::getLastInsertId();
+			$object->id = $this->db->getLastInsertId();
 		}
 		
 		if ( ! $object->created_at )
@@ -130,55 +137,55 @@ class Dao
 	}
 	
 	# ------------------------------------------ ------------------------------------------ #
-	public final static function delete( $object, $error_message = 'Error deleting object' )
+	public final function delete( $object, $error_message = 'Error deleting object' )
 	{
-		Validation::validateObjects( [ $object ] );
+		\Nano\Helpers\Validation::validateObjects( [ $object ] );
 		$class_name = get_class( $object );
-		$table_name = Dao::getTableName( $class_name );
-		$result = Dao::execute( "DELETE FROM {$table_name} WHERE `id` = '{$object->id}' LIMIT 1" );
+		$table_name = $this->getTableName( $class_name );
+		$result = $this->execute( "DELETE FROM {$table_name} WHERE `id` = '{$object->id}' LIMIT 1" );
 		
 		if ( ! $result )
 		{
-			throw new \Nano\DaoException( $error_message );
+			throw new \Nano\Exceptions\DaoException( $error_message );
 		}
 		
 		return $object;
 	}
 	
 	# ------------------------------------------ ------------------------------------------ #
-	private static function fetchResultSet( $result_set )
+	private function fetchResultSet( $result_set )
 	{
 		$out = [];
 		
 		while ( $row = $result_set->fetchObject() )
 		{
-			$out[] = \Nano\QuoteUnquote::unquoteRow( $row );
+			$out[] = \Nano\Helpers\QuoteUnquote::unquoteRow( $row );
 		}
 		
 		return $out;
 	}
 	
 	# ------------------------------------------ ------------------------------------------ #
-	private static function getTableName( $class_name )
+	private function getTableName( $class_name )
 	{
 		$table_name = explode( '\\', $class_name );
 		$table_name = end( $table_name );
-		$table_name = \Nano\CaseTransform::camelcaseToUnderscore( $table_name );
-		$table_name = \Nano\SingularAndPlural::convertToPlural( $table_name );
+		$table_name = \Nano\Helpers\CaseTransform::camelcaseToUnderscore( $table_name );
+		$table_name = \Nano\Helpers\SingularAndPlural::convertToPlural( $table_name );
 		return $table_name;
 	}
 	
 	# ------------------------------------------ ------------------------------------------ #
-	private static function getParentFieldName( $class_name )
+	private function getParentFieldName( $class_name )
 	{
 		$table_name = explode( '\\', $class_name );
 		$table_name = end( $table_name );
-		$table_name = \Nano\CaseTransform::camelcaseToUnderscore( $table_name );
+		$table_name = \Nano\Helpers\CaseTransform::camelcaseToUnderscore( $table_name );
 		return $table_name . '_id';
 	}
 	
 	# ------------------------------------------ ------------------------------------------ #
-	private static function populateObject( $object, $data )
+	private function populateObject( $object, $data )
 	{
 		if ( is_array( $data ) )
 		{
@@ -204,7 +211,7 @@ class Dao
 	}
 	
 	# ------------------------------------------ ------------------------------------------ #
-	private static function getSqlQuery( $table_name, $where = null, $order_by = null, $limit = null, $count = false )
+	private function getSqlQuery( $table_name, $where = null, $order_by = null, $limit = null, $count = false )
 	{
 		$sql  = "SELECT ";
 		
@@ -238,10 +245,10 @@ class Dao
 	}
 	
 	# ------------------------------------------ ------------------------------------------ #
-	private static function getSqlSave( $object )
+	private function getSqlSave( $object )
 	{
 		$class_name = get_class( $object );
-		$table_name = Dao::getTableName( $class_name );
+		$table_name = $this->getTableName( $class_name );
 		
 		foreach ( get_class_vars( $class_name ) as $key => $value )
 		{
@@ -273,6 +280,5 @@ class Dao
 		{
 			return "INSERT INTO `{$table_name}` SET {$keys_values}";
 		}
-		
 	}
 }
