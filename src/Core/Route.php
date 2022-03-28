@@ -1,28 +1,39 @@
 <?php
 namespace Nano\Core;
-use stdClass;
 
 class Route
 {
 	private static $instances = [];
+	private $dao = null;
+	private $request = null;
 	private $request_method = null;
-	private $url = null;
-	private $content = null;
+	private $has_match = false;
+	private $request_url = null;
+	private $middlewares_queue = [];
+	private $args = null;
 	private $view_path = null;
 	private $view = null;
 	private $layout = null;
+	use \Nano\Core\RouteAction;
+	use \Nano\Core\RouteMethods;
+	use \Nano\Core\RouteMiddleware;
+	use \Nano\Core\RouteView;
+	use \Nano\Core\RouteUrlVariables;
 	
 	# ------------------------------------------ ------------------------------------------ #
 	protected function __construct()
 	{
-		$this->content = new stdClass();
-		$this->view_path = __DIR__ . '/../../../';
+		$this->view_path = __DIR__ . '/../../../../../';
+		$this->request_method = $_SERVER['REQUEST_METHOD'] ?? '';
+		$this->args = new \Nano\Core\Arguments();
+		$this->dao = new \Nano\Core\Dao( new \Nano\Core\Db() );
+		$this->request = \Nano\Core\HttpRequest::initialize();
 	}
 	
 	# ------------------------------------------ ------------------------------------------ #
 	protected function __clone()
 	{
-		
+		//
 	}
 	
 	# ------------------------------------------ ------------------------------------------ #
@@ -47,224 +58,44 @@ class Route
 	# ------------------------------------------ ------------------------------------------ #
 	public final function setRequestMethod( $request_method )
 	{
-		if ( get_class( $this ) == 'Nano\RouteVoid' )
-		{
-			return $this;
-		}
-		
 		$this->request_method = $request_method;
 		return $this;
 	}
 	
 	# ------------------------------------------ ------------------------------------------ #
-	public final function setUrl( $url )
+	public final function setRequestUrl( $url )
 	{
-		if ( get_class( $this ) == 'Nano\RouteVoid' )
-		{
-			return $this;
-		}
-		
-		$this->url = $url;
+		$this->request_url = $url;
 		return $this;
 	}
 	
 	# ------------------------------------------ ------------------------------------------ #
 	public final function setViewPath( $path )
 	{
-		if ( get_class( $this ) == 'Nano\RouteVoid' )
-		{
-			return $this;
-		}
-		
 		$this->view_path = $path;
 		return $this;
 	}
 	
 	# ------------------------------------------ ------------------------------------------ #
-	public final function getViewPath()
-	{
-		return $this->view_path;
-	}
-	
-	# ------------------------------------------ ------------------------------------------ #
 	public final function setLayout( $layout )
 	{
-		if ( get_class( $this ) == 'Nano\RouteVoid' )
-		{
-			return $this;
-		}
-		
 		$this->layout = $layout;
 		return $this;
 	}
 	
 	# ------------------------------------------ ------------------------------------------ #
-	public final function get( $url )
-	{
-		if ( strtolower( $this->request_method ) != 'get' )
-		{
-			return ( new \Nano\Core\RouteVoid() );
-		}
-		
-		return $this->match( $url );
-	}
-	
-	# ------------------------------------------ ------------------------------------------ #
-	public final function post( $url )
-	{
-		if ( strtolower( $this->request_method ) != 'post' )
-		{
-			return ( new \Nano\Core\RouteVoid() );
-		}
-		
-		return $this->match( $url );
-	}
-	
-	# ------------------------------------------ ------------------------------------------ #
-	public final function put( $url )
-	{
-		if ( strtolower( $this->request_method ) != 'put' )
-		{
-			return ( new \Nano\Core\RouteVoid() );
-		}
-		
-		return $this->match( $url );
-	}
-	
-	# ------------------------------------------ ------------------------------------------ #
-	public final function delete( $url )
-	{
-		if ( strtolower( $this->request_method ) != 'delete' )
-		{
-			return ( new \Nano\Core\RouteVoid() );
-		}
-		
-		return $this->match( $url );
-	}
-	
-	# ------------------------------------------ ------------------------------------------ #
 	private function match( $url )
 	{
-		$matches = $this->matchRegexUrl( $url );
+		$matches = \Nano\Helpers\MatchRegexUrl::do( $url, $this->request_url );
 		
 		if ( $matches === false )
 		{
 			return ( new \Nano\Core\RouteVoid() );
 		}
 		
+		$this->has_match = true;
 		$this->getUrlVariables( $matches );
+		$this->runQueuedMiddlewares();
 		return $this;
-	}
-	
-	# ------------------------------------------ ------------------------------------------ #
-	public function action( $destination )
-	{
-		if ( get_class( $this ) == 'Nano\RouteVoid' )
-		{
-			return $this;
-		}
-		
-		$destination = explode( '#', $destination );
-		$controller_name = $destination[0];
-		$action_name = $destination[1];
-		$action_name = explode( '?', $action_name );
-		
-		if ( count( $action_name ) > 1 )
-		{
-			$querystring = $action_name[1];
-			$querystring = explode( '&', $querystring );
-			
-			foreach ( $querystring as $item )
-			{
-				$item = explode( '=', $item );
-				$key = $item[0];
-				$value = $item[1];
-				$_GET[$key] = $value;
-			}
-		}
-		
-		$db = new \Nano\Core\Db();
-		$dao = new \Nano\Core\Dao( $db );
-		$httpRequest = \Nano\Core\HttpRequest::initialize();
-		$action_name = $action_name[0];
-		$controller = new $controller_name( $httpRequest, $dao );
-		$action_return = $controller->$action_name( $httpRequest, $dao );
-		
-		if ( is_array( $action_return ) )
-		{
-			foreach ( $action_return as $key => $value )
-			{
-				$this->content->$key = $value;
-			}
-		}
-		
-		if ( isset( $this->content->layout ) && $this->content->layout )
-		{
-			$this->setLayout( $this->content->layout );
-		}
-		
-		return $this;
-	}
-	
-	# ------------------------------------------ ------------------------------------------ #
-	public final function view( $destination )
-	{
-		if ( get_class( $this ) == 'Nano\RouteVoid' )
-		{
-			return $this;
-		}
-		
-		$this->view = $destination;
-		
-		foreach ( $this->content as $content_var_name => $content_var_value )
-		{
-			$$content_var_name = $this->content->$content_var_name;
-		}
-		
-		if ( isset( $this->content->layout ) && $this->content->layout )
-		{
-			$this->setLayout( $this->content->layout );
-		}
-		
-		ob_start();
-		include( $this->view_path . $this->view );
-		$view = ob_get_contents();
-		ob_end_clean();
-		
-		if ( $this->layout )
-		{
-			ob_start();
-			include( $this->layout );
-			$html = ob_get_contents();
-			ob_end_clean();
-		}
-		else
-		{
-			$html = $view;
-		}
-		
-		echo $html;
-		exit;
-	}
-	
-	# ------------------------------------------ ------------------------------------------ #
-	private function matchRegexUrl( $url )
-	{
-		$regex = '/^' . str_replace( '/', '\/', $url );
-		$regex = preg_replace( '/:([a-zA-Z0-9-_\.:]+)/', '(?P<$1>[A-Za-z0-9-_\.:]+)', $regex ) . '$/';
-		$result = @preg_match( $regex, $this->url, $matches );
-		return ( $result === 1 ? $matches : false );
-	}
-	
-	# ------------------------------------------ ------------------------------------------ #
-	private function getUrlVariables( $matches )
-	{
-		foreach ( $matches as $key => $value )
-		{
-			if ( ! is_numeric( $key ) )
-			{
-				$_GET[$key] = $value;
-			}
-		}
 	}
 }

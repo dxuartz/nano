@@ -13,12 +13,12 @@ class HttpRequest
 		$httpRequest = new self();
 		$httpRequest->populateGet();
 		
-		if ( $_SERVER['REQUEST_METHOD'] === 'POST' )
+		if ( strtoupper( $_SERVER['REQUEST_METHOD'] ) === 'POST' )
 		{
 			$httpRequest->populatePost();
 		}
 		
-		if ( $_SERVER['REQUEST_METHOD'] === 'PUT' )
+		if ( strtoupper( $_SERVER['REQUEST_METHOD'] ) === 'PUT' )
 		{
 			$httpRequest->populatePut();
 		}
@@ -42,6 +42,12 @@ class HttpRequest
 	private function populateGet()
 	{
 		$this->get = $_GET;
+	}
+	
+	# ------------------------------------------ ------------------------------------------ #
+	public final function addToGet( $key, $value )
+	{
+		$this->get[$key] = $value;
 	}
 	
 	# ------------------------------------------ ------------------------------------------ #

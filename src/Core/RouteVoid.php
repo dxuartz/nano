@@ -28,7 +28,19 @@ class RouteVoid
 	}
 	
 	# ------------------------------------------ ------------------------------------------ #
-	public function action( $destination )
+	public final function addMiddleware( $class_name )
+	{
+		return $this;
+	}
+	
+	# ------------------------------------------ ------------------------------------------ #
+	public final function middleware( $class_name )
+	{
+		return $this;
+	}
+	
+	# ------------------------------------------ ------------------------------------------ #
+	public final function action( $destination )
 	{
 		return $this;
 	}
