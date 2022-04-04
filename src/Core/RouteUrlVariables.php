@@ -10,7 +10,7 @@ trait RouteUrlVariables
 		{
 			if ( is_string( $key ) )
 			{
-				$this->request->addToGet( $key, $value );
+				$this->request->add( $key, $value, 'params' );
 			}
 		}
 	}

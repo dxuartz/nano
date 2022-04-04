@@ -21,7 +21,7 @@ class Dao
 	}
 	
 	# ------------------------------------------ ------------------------------------------ #
-	public final function find( $class_name, $where = null )
+	public final function findOne( $class_name, $where = null )
 	{
 		\Nano\Helpers\Validation::validateStrings( [ $class_name ] );
 		
@@ -31,7 +31,7 @@ class Dao
 		}
 		
 		$table_name = $this->getTableName( $class_name );
-		$sql = $this->getSqlQuery( $table_name, $where, self::SQL_QUERY_ORDER_NULL, 1 );
+		$sql = $this->getSqlSelect( $table_name, $where, self::SQL_QUERY_ORDER_NULL, 1 );
 		$result_set = $this->db->query( $sql );
 		$result_set = $this->fetchResultSet( $result_set );
 		$out_object = new $class_name();
@@ -45,7 +45,7 @@ class Dao
 		\Nano\Helpers\Validation::validateStrings( [ $class_name ] );
 		$out = [];
 		$table_name = $this->getTableName( $class_name );
-		$sql = $this->getSqlQuery( $table_name, $where, $order_by, $limit );
+		$sql = $this->getSqlSelect( $table_name, $where, $order_by, $limit );
 		$result_set = $this->db->query( $sql );
 		$result_set = $this->fetchResultSet( $result_set );
 		
@@ -65,7 +65,7 @@ class Dao
 		\Nano\Helpers\Validation::validateStrings( [ $class_name ] );
 		\Nano\Helpers\Validation::validateObjects( [ $object ] );
 		$field_name = $this->getParentFieldName( $class_name );
-		return $this->find( $class_name, $object->$field_name );
+		return $this->findOne( $class_name, $object->$field_name );
 	}
 	
 	# ------------------------------------------ ------------------------------------------ #
@@ -73,7 +73,7 @@ class Dao
 	{
 		\Nano\Helpers\Validation::validateStrings( [ $class_name ] );
 		$table_name = $this->getTableName( $class_name );
-		$sql = $this->getSqlQuery( $table_name, $where, self::SQL_QUERY_ORDER_NULL, self::SQL_QUERY_LIMIT_NULL, self::SQL_QUERY_COUNT_TRUE );
+		$sql = $this->getSqlSelect( $table_name, $where, self::SQL_QUERY_ORDER_NULL, self::SQL_QUERY_LIMIT_NULL, self::SQL_QUERY_COUNT_TRUE );
 		$result_set = $this->db->query( $sql );
 		$result_set = $this->fetchResultSet( $result_set );
 		
@@ -215,7 +215,7 @@ class Dao
 	}
 	
 	# ------------------------------------------ ------------------------------------------ #
-	private function getSqlQuery( $table_name, $where = null, $order_by = null, $limit = null, $count = false )
+	private function getSqlSelect( $table_name, $where = null, $order_by = null, $limit = null, $count = false )
 	{
 		$sql  = "SELECT ";
 		

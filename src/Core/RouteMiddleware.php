@@ -4,13 +4,6 @@ namespace Nano\Core;
 trait RouteMiddleware
 {
 	# ------------------------------------------ ------------------------------------------ #
-	public final function addMiddleware( $class_name )
-	{
-		array_push( $this->middlewares_queue, $class_name );
-		return $this;
-	}
-	
-	# ------------------------------------------ ------------------------------------------ #
 	public final function middleware( $class_name )
 	{
 		if ( ! $this->has_match )
@@ -18,19 +11,29 @@ trait RouteMiddleware
 			throw new \Nano\Exceptions\InvalidExecutionException( 'Middleware (' . $class_name . ') can only run after URL match' );
 		}
 		
-		$middleware = new $class_name( $this->request, $this->dao, $this->args );
-		$result = $middleware->handle();
+		$this->response->clear();
+		$middleware = new $class_name( $this->request, $this->response, $this->dao, $this->args );
+		$middleware_response = $middleware->handle();
 		
-		if ( ! is_array( $result ) )
+		if ( gettype( $middleware_response ) != 'object' || get_class( $middleware_response ) != 'Nano\Core\Response' )
 		{
-			throw new \Nano\Exceptions\InvalidReturnException( 'Middleware (' . $middleware::class . ') return must be an array' );
+			throw new \Nano\Exceptions\InvalidReturnException( 'Middleware (' . $middleware::class . ') return must be of type \Nano\Core\Response' );
 		}
 		
-		foreach ( $result as $key => $value )
+		$this->response = $middleware_response;
+		
+		foreach ( $this->response->list() as $key => $value )
 		{
 			$this->args->add( $key, $value );
 		}
 		
+		return $this;
+	}
+	
+	# ------------------------------------------ ------------------------------------------ #
+	public final function pushMiddleware( $class_name )
+	{
+		array_push( $this->middlewares_queue, $class_name );
 		return $this;
 	}
 	

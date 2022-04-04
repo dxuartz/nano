@@ -4,30 +4,33 @@ namespace Nano\Core;
 class Route
 {
 	private static $instances = [];
-	private $dao = null;
+	private $method = null;
+	private $url = null;
 	private $request = null;
-	private $request_method = null;
-	private $has_match = false;
-	private $request_url = null;
-	private $middlewares_queue = [];
+	private $response = null;
+	private $dao = null;
 	private $args = null;
+	private $has_match = false;
+	private $middlewares_queue = [];
 	private $view_path = null;
 	private $view = null;
 	private $layout = null;
 	use \Nano\Core\RouteAction;
+	use \Nano\Core\RouteMatch;
 	use \Nano\Core\RouteMethods;
 	use \Nano\Core\RouteMiddleware;
-	use \Nano\Core\RouteView;
 	use \Nano\Core\RouteUrlVariables;
+	use \Nano\Core\RouteView;
 	
 	# ------------------------------------------ ------------------------------------------ #
 	protected function __construct()
 	{
 		$this->view_path = __DIR__ . '/../../../../../';
-		$this->request_method = $_SERVER['REQUEST_METHOD'] ?? '';
+		$this->method = $_SERVER['REQUEST_METHOD'] ?? '';
 		$this->args = new \Nano\Core\Arguments();
 		$this->dao = new \Nano\Core\Dao( new \Nano\Core\Db() );
-		$this->request = \Nano\Core\HttpRequest::initialize();
+		$this->request = new \Nano\Core\Request();
+		$this->response = new \Nano\Core\Response();
 	}
 	
 	# ------------------------------------------ ------------------------------------------ #
@@ -56,16 +59,9 @@ class Route
 	}
 	
 	# ------------------------------------------ ------------------------------------------ #
-	public final function setRequestMethod( $request_method )
+	public final function setUrl( $url )
 	{
-		$this->request_method = $request_method;
-		return $this;
-	}
-	
-	# ------------------------------------------ ------------------------------------------ #
-	public final function setRequestUrl( $url )
-	{
-		$this->request_url = $url;
+		$this->url = $url;
 		return $this;
 	}
 	
@@ -80,22 +76,6 @@ class Route
 	public final function setLayout( $layout )
 	{
 		$this->layout = $layout;
-		return $this;
-	}
-	
-	# ------------------------------------------ ------------------------------------------ #
-	private function match( $url )
-	{
-		$matches = \Nano\Helpers\MatchRegexUrl::do( $url, $this->request_url );
-		
-		if ( $matches === false )
-		{
-			return ( new \Nano\Core\RouteVoid() );
-		}
-		
-		$this->has_match = true;
-		$this->getUrlVariables( $matches );
-		$this->runQueuedMiddlewares();
 		return $this;
 	}
 }

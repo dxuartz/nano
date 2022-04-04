@@ -25,16 +25,19 @@ trait RouteAction
 			}
 		}
 		
+		$this->response->clear();
+		$controller = new $controller_name( $this->request, $this->response, $this->dao, $this->args );
 		$action_name = $action_name[0];
-		$controller = new $controller_name( $this->request, $this->dao, $this->args );
-		$action_return = $controller->$action_name();
+		$action_response = $controller->$action_name();
 		
-		if ( ! is_array( $action_return ) )
+		if ( gettype( $action_response ) != 'object' || get_class( $action_response ) != 'Nano\Core\Response' )
 		{
-			throw new \Nano\Exceptions\InvalidReturnException( 'Controller (' . $controller::class . ') return must be an array' );
+			throw new \Nano\Exceptions\InvalidReturnException( 'Controller (' . $controller::class . ') return must be of type \Nano\Core\Response' );
 		}
 		
-		foreach ( $action_return as $key => $value )
+		$this->response = $action_response;
+		
+		foreach ( $this->response->list() as $key => $value )
 		{
 			$this->args->add( $key, $value );
 		}

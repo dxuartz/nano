@@ -2,7 +2,7 @@
 namespace Nano\Core;
 use stdClass;
 
-class Arguments
+class Response
 {
 	public readonly stdClass $data;
 	
@@ -26,7 +26,7 @@ class Arguments
 	{
 		if ( ! is_string( $key ) )
 		{
-			throw new \Nano\Exceptions\InvalidInputException( 'Argument key must be a string' );
+			throw new \Nano\Exceptions\InvalidInputException( 'Response key must be a string' );
 		}
 		
 		$this->data->$key = $value;

@@ -8,9 +8,9 @@ trait RouteView
 	{
 		$this->view = $destination;
 		
-		foreach ( $this->args->toArray() as $args_var_name => $_ )
+		foreach ( $this->args->list() as $args_var_name => $_ )
 		{
-			$$args_var_name = $this->args->get( $args_var_name );
+			$$args_var_name = $this->args->$args_var_name;
 		}
 		
 		if ( isset( $layout ) && $layout )

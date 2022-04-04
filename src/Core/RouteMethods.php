@@ -6,7 +6,7 @@ trait RouteMethods
 	# ------------------------------------------ ------------------------------------------ #
 	public final function get( $url )
 	{
-		if ( strtolower( $this->request_method ) != 'get' )
+		if ( strtolower( $this->method ) != 'get' )
 		{
 			return ( new \Nano\Core\RouteVoid() );
 		}
@@ -17,7 +17,7 @@ trait RouteMethods
 	# ------------------------------------------ ------------------------------------------ #
 	public final function post( $url )
 	{
-		if ( strtolower( $this->request_method ) != 'post' )
+		if ( strtolower( $this->method ) != 'post' )
 		{
 			return ( new \Nano\Core\RouteVoid() );
 		}
@@ -28,7 +28,7 @@ trait RouteMethods
 	# ------------------------------------------ ------------------------------------------ #
 	public final function put( $url )
 	{
-		if ( strtolower( $this->request_method ) != 'put' )
+		if ( strtolower( $this->method ) != 'put' )
 		{
 			return ( new \Nano\Core\RouteVoid() );
 		}
@@ -39,7 +39,7 @@ trait RouteMethods
 	# ------------------------------------------ ------------------------------------------ #
 	public final function delete( $url )
 	{
-		if ( strtolower( $this->request_method ) != 'delete' )
+		if ( strtolower( $this->method ) != 'delete' )
 		{
 			return ( new \Nano\Core\RouteVoid() );
 		}

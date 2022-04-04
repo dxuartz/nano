@@ -4,12 +4,6 @@ namespace Nano\Core;
 class RouteVoid
 {
 	# ------------------------------------------ ------------------------------------------ #
-	public final function setRequestMethod( $request_method )
-	{
-		return $this;
-	}
-	
-	# ------------------------------------------ ------------------------------------------ #
 	public final function setUrl( $url )
 	{
 		return $this;
@@ -28,7 +22,7 @@ class RouteVoid
 	}
 	
 	# ------------------------------------------ ------------------------------------------ #
-	public final function addMiddleware( $class_name )
+	public final function pushMiddleware( $class_name )
 	{
 		return $this;
 	}
