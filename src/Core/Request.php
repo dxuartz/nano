@@ -4,6 +4,7 @@ use stdClass;
 
 class Request
 {
+	public readonly stdClass $headers;
 	public readonly stdClass $query;
 	public readonly stdClass $params;
 	public readonly stdClass $body;
@@ -11,6 +12,7 @@ class Request
 	# ------------------------------------------ ------------------------------------------ #
 	public function __construct()
 	{
+		$this->headers = new stdClass();
 		$this->query = new stdClass();
 		$this->params = new stdClass();
 		$this->body = new stdClass();
@@ -20,7 +22,7 @@ class Request
 	# ------------------------------------------ ------------------------------------------ #
 	public final function add( string $key, mixed $value, string $type ) : bool
 	{
-		if ( ! in_array( $type, [ 'query', 'params', 'body' ] ) )
+		if ( ! in_array( $type, [ 'headers', 'query', 'params', 'body' ] ) )
 		{
 			return false;
 		}
@@ -32,9 +34,23 @@ class Request
 	# ------------------------------------------ ------------------------------------------ #
 	private function populate() : void
 	{
+		$this->populateHeaders();
 		$this->populateQuery();
 		$this->populateBodyFromFormData();
 		$this->populateBodyFromRawData();
+	}
+	
+	# ------------------------------------------ ------------------------------------------ #
+	private function populateHeaders() : bool
+	{
+		foreach ( getallheaders() as $key => $value )
+		{
+			$key = strtolower( $key );
+			$key = str_replace( '-', '_', $key );
+			$this->add( $key, $value, 'headers' );
+		}
+		
+		return true;
 	}
 	
 	# ------------------------------------------ ------------------------------------------ #
@@ -98,7 +114,7 @@ class Request
 				preg_match( '/name=\"([^\"]*)\"[\n|\r]+([^\n\r].*)?\r$/s', $block, $matches );
 			}
 			
-			$this->add( $matches[1], $matches[2], 'body' );
+			$this->add( $matches[1], $matches[2] ?? '', 'body' );
 		}
 		
 		return true;

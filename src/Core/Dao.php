@@ -124,7 +124,7 @@ class Dao
 		
 		if ( ! $object->id )
 		{
-			$object->id = $this->db->getLastInsertId();
+			$object->id = ( int ) $this->db->getLastInsertId();
 		}
 		
 		if ( isset( $object->created_at ) && ! $object->created_at )
@@ -264,11 +264,11 @@ class Dao
 			{
 				$keys_values[] = "`updated_at` = '" . date( 'Y-m-d H:i:s' ) . "'";
 			}
-			elseif ( property_exists( $object, $key ) && $object->$key !== null && $object->$key !== 'null' )
+			elseif ( property_exists( $object, $key ) && $object->$key !== null )
 			{
 				$keys_values[] = "`{$key}` = '{$object->$key}'";
 			}
-			elseif ( property_exists( $object, $key ) && $object->$key === 'null' )
+			elseif ( property_exists( $object, $key ) && $object->$key === null )
 			{
 				$keys_values[] = "`{$key}` = NULL";
 			}
