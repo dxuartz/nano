@@ -37,7 +37,8 @@ class Request
 		$this->populateHeaders();
 		$this->populateQuery();
 		$this->populateBodyFromFormData();
-		$this->populateBodyFromRawData();
+		$this->populateBodyFromRawJsonData();
+		$this->populateBodyFromMultipartFormData();
 	}
 	
 	# ------------------------------------------ ------------------------------------------ #
@@ -76,7 +77,7 @@ class Request
 	}
 	
 	# ------------------------------------------ ------------------------------------------ #
-	private function populateBodyFromRawData() : bool
+	private function populateBodyFromRawJsonData() : bool
 	{
 		$input = file_get_contents( 'php://input' );
 		
@@ -85,15 +86,34 @@ class Request
 			return false;
 		}
 		
-		$json_body = json_decode( $input, true );
+		$json_body = json_decode( $input, false );
 		
-		if ( ! json_last_error() )
+		if ( json_last_error() )
 		{
-			$this->add( 'json', $json_body, 'body' );
-			return true;
+			return false;
+		}
+		
+		$this->destructureJsonToBody( $json_body );
+		return true;
+	}
+	
+	# ------------------------------------------ ------------------------------------------ #
+	private function populateBodyFromMultipartFormData() : bool
+	{
+		$input = file_get_contents( 'php://input' );
+		
+		if ( ! $input )
+		{
+			return false;
 		}
 		
 		preg_match( '/boundary=(.*)$/', $_SERVER['CONTENT_TYPE'], $matches );
+		
+		if ( empty( $matches ) )
+		{
+			return false;
+		}
+		
 		$boundary = $matches[1];
 		$a_blocks = preg_split( "/-+$boundary/", $input );
 		array_pop( $a_blocks );
@@ -118,5 +138,21 @@ class Request
 		}
 		
 		return true;
+	}
+	
+	# ------------------------------------------ ------------------------------------------ #
+	private function destructureJsonToBody( $json_body )
+	{
+		if ( is_object( $json_body ) )
+		{
+			foreach ( $json_body as $key => $value )
+			{
+				$this->add( $key, $value, 'body' );
+			}
+		}
+		elseif ( is_array( $json_body ) )
+		{
+			$this->add( 'array', $json_body, 'body' );
+		}
 	}
 }

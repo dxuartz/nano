@@ -112,7 +112,8 @@ class Dao
 		
 		if ( $debug_mode )
 		{
-			return $sql;
+			echo $sql;
+			exit;
 		}
 		
 		$result = $this->execute( $sql );
