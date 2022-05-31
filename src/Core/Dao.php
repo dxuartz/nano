@@ -108,6 +108,17 @@ class Dao
 	public final function save( $object, $error_message = 'Error saving object', $debug_mode = false )
 	{
 		\Nano\Helpers\Validation::validateObjects( [ $object ] );
+		
+		if ( property_exists( $object, 'created_at' ) && $object->created_at === null )
+		{
+			$object->created_at = date( 'Y-m-d H:i:s' );
+		}
+		
+		if ( property_exists( $object, 'updated_at' ) )
+		{
+			$object->updated_at = date( 'Y-m-d H:i:s' );
+		}
+		
 		$sql = $this->getSqlSave( $object );
 		
 		if ( $debug_mode )
@@ -126,16 +137,6 @@ class Dao
 		if ( ! $object->id )
 		{
 			$object->id = ( int ) $this->db->getLastInsertId();
-		}
-		
-		if ( isset( $object->created_at ) && ! $object->created_at )
-		{
-			$object->created_at = date( 'Y-m-d H:i:s' );
-		}
-		
-		if ( isset( $object->updated_at ) )
-		{
-			$object->updated_at = date( 'Y-m-d H:i:s' );
 		}
 		
 		return $object;
@@ -252,20 +253,13 @@ class Dao
 	# ------------------------------------------ ------------------------------------------ #
 	private function getSqlSave( $object )
 	{
+		$keys_values = [];
 		$class_name = get_class( $object );
 		$table_name = $this->getTableName( $class_name );
 		
 		foreach ( get_class_vars( $class_name ) as $key => $value )
 		{
-			if ( $key == 'created_at' && ! $object->id )
-			{
-				$keys_values[] = "`created_at` = '" . date( 'Y-m-d H:i:s' ) . "'";
-			}
-			elseif ( $key == 'updated_at' )
-			{
-				$keys_values[] = "`updated_at` = '" . date( 'Y-m-d H:i:s' ) . "'";
-			}
-			elseif ( property_exists( $object, $key ) && $object->$key !== null )
+			if ( property_exists( $object, $key ) && $object->$key !== null )
 			{
 				$keys_values[] = "`{$key}` = '{$object->$key}'";
 			}
