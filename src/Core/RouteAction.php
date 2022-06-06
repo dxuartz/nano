@@ -35,6 +35,8 @@ trait RouteAction
 			throw new \Nano\Exceptions\InvalidReturnException( 'Controller (' . $controller::class . ') return must be of type \Nano\Core\Response' );
 		}
 		
+		$this->args->add( 'controller_name', $controller_name );
+		$this->args->add( 'action_name', $action_name );
 		$this->response = $action_response;
 		
 		foreach ( $this->response->list() as $key => $value )
